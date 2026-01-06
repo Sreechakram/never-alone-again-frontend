@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserInfo } from '../../features/authentication/authenticationSlice';
 import Dashboard from '../../pages/dashboard/Dashboard';
 import SignupPage from '../../pages/authentication/Signup';
-import OTPPage from '../../pages/authentication/Otp';
+import OTPPage from '../../pages/authentication/VerifyOtp';
 
 const Authenticator = () => {
   const dispatch = useDispatch();

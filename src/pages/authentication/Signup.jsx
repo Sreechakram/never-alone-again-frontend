@@ -9,27 +9,36 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
-  const { status, error } = useSelector((state) => state.auth);
+  const { status } = useSelector((state) => state.auth);
   const [localError, setLocalError] = useState(null);
 
   const onSubmit = async (data) => {
     setLocalError(null);
     const result = await dispatch(signupUser(data));
+    const response = result.payload;
 
-    if (signupUser.fulfilled.match(result)) {
-      // store the email in redux so OTP page can read it
+    // console.log("Response:", response);
+
+    // SUCCESS -> new user OR unverified user -> move to OTP
+    if (signupUser.fulfilled.match(result) && response?.status === true) {
       dispatch(setUser({ email: data.email }));
-      navigate('/verify-otp');
-    } else {
-      setLocalError(
-        result.payload?.message ||
-        result.error?.message ||
-        'Signup failed'
-      );
+      navigate("/verify-otp");
+      return;
     }
-  };
 
-  const finalError = localError || error;
+    // USER ALREADY VERIFIED -> just show message, DO NOT redirect
+    if (response?.message?.includes("already verified")) {
+      setLocalError("User already exists. Please log in.");
+      return;
+    }
+
+    // Any other error
+    setLocalError(
+      response?.message ||
+      result.error?.message ||
+      "Signup failed"
+    );
+  };
 
   return (
     <Box sx={{ maxWidth: 400, mt: 8, mx: 'auto' }}>
@@ -43,19 +52,24 @@ const Signup = () => {
 
         <TextField
           label="Password"
+          type="password"
           fullWidth
           margin="normal"
-          type="password"
           {...register('password', { required: true })}
         />
 
-        <Button variant="contained" type="submit" fullWidth disabled={status === 'loading'}>
+        <Button
+          variant="contained"
+          type="submit"
+          fullWidth
+          disabled={status === 'loading'}
+        >
           {status === 'loading' ? 'Signing up...' : 'Signup'}
         </Button>
 
-        {finalError && (
+        {localError && (
           <Alert severity="error" sx={{ mt: 2 }}>
-            {finalError}
+            {localError}
           </Alert>
         )}
       </form>

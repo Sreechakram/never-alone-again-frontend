@@ -4,7 +4,9 @@ import axios from 'axios';
 const API_URL = 'http://localhost:8000';
 
 export const signup = (data) => axios.post(`${API_URL}/user/signup`, data);
-export const login = (data) => axios.post(`${API_URL}/user/login`, data);
+// export const login = (data) => axios.post(`${API_URL}/user/login`, data);
+export const login = (data) =>axios.post(`${API_URL}/user/login`, data);
+
 export const verifyOTP = (data) => axios.post(`${API_URL}/user/verify-otp`, data);
 
 // <-- newly added resendOTP
