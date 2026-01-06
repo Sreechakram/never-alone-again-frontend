@@ -17,36 +17,34 @@ const Signup = () => {
     const result = await dispatch(signupUser(data));
     const response = result.payload;
 
-    // console.log("Response:", response);
-
-    // SUCCESS -> new user OR unverified user -> move to OTP
     if (signupUser.fulfilled.match(result) && response?.status === true) {
       dispatch(setUser({ email: data.email }));
-      navigate("/verify-otp");
+      navigate('/verify-otp');
       return;
     }
 
-    // USER ALREADY VERIFIED -> just show message, DO NOT redirect
-    if (response?.message?.includes("already verified")) {
-      setLocalError("User already exists. Please log in.");
+    if (response?.message?.includes('already verified')) {
+      setLocalError('User already exists. Please log in.');
       return;
     }
 
-    // Any other error
-    setLocalError(
-      response?.message ||
-      result.error?.message ||
-      "Signup failed"
-    );
+    setLocalError(response?.message || result.error?.message || 'Signup failed');
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mt: 8, mx: 'auto' }}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <Box
+      sx={{
+        maxWidth: 420,
+        mx: 'auto',
+        px: { xs: 2, sm: 3 },
+        mt: { xs: 6, sm: 8 },
+      }}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <TextField
           label="Email"
           fullWidth
-          margin="normal"
+          margin="dense"
           {...register('email', { required: true })}
         />
 
@@ -54,7 +52,8 @@ const Signup = () => {
           label="Password"
           type="password"
           fullWidth
-          margin="normal"
+          margin="dense"
+          sx={{ mb: 1 }}
           {...register('password', { required: true })}
         />
 
@@ -63,8 +62,18 @@ const Signup = () => {
           type="submit"
           fullWidth
           disabled={status === 'loading'}
+          sx={{ mt: 2 }}
         >
-          {status === 'loading' ? 'Signing up...' : 'Signup'}
+          {status === 'loading' ? 'Signing up…' : 'Signup'}
+        </Button>
+
+        <Button
+          variant="text"
+          fullWidth
+          sx={{ mt: 1 }}
+          onClick={() => navigate('/login')}
+        >
+          Already have an account? Login
         </Button>
 
         {localError && (

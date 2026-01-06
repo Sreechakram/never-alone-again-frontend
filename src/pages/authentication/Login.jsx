@@ -22,35 +22,40 @@ const Login = () => {
   const [localError, setLocalError] = useState(null);
 
   const onSubmit = async ({ email, password }) => {
-  setLocalError(null);
+    setLocalError(null);
 
-  const action = await dispatch(loginUser({ email, password }));
+    const action = await dispatch(loginUser({ email, password }));
 
-  if (loginUser.fulfilled.match(action)) {
-    const res = action.payload;
+    if (loginUser.fulfilled.match(action)) {
+      const res = action.payload;
 
-    if (res?.status === true && res?.token) {
-      dispatch(setToken(res.token));
-      dispatch(setUser({ email }));
-      navigate('/dashboard', { replace: true });
-      return;
+      if (res?.status === true && res?.token) {
+        dispatch(setToken(res.token));
+        dispatch(setUser({ email }));
+        navigate('/dashboard', { replace: true });
+        return;
+      }
     }
-  }
 
-  if (loginUser.rejected.match(action)) {
-    setLocalError(action.payload?.message || 'Invalid email or password');
-  }
-};
-
+    if (loginUser.rejected.match(action)) {
+      setLocalError(action.payload?.message || 'Invalid email or password');
+    }
+  };
 
   return (
-    <Box sx={{ maxWidth: 400, mt: 8, mx: 'auto' }}>
+    <Box
+      sx={{
+        maxWidth: 420,
+        mx: 'auto',
+        px: { xs: 2, sm: 3 },
+        mt: { xs: 6, sm: 8 },
+      }}
+    >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-
         <TextField
           label="Email"
           fullWidth
-          margin="normal"
+          margin="dense"
           error={!!errors.email}
           helperText={errors.email?.message}
           {...register('email', {
@@ -66,7 +71,8 @@ const Login = () => {
           label="Password"
           type="password"
           fullWidth
-          margin="normal"
+          margin="dense"
+          sx={{ mb: 1 }}
           error={!!errors.password}
           helperText={errors.password?.message}
           {...register('password', {
@@ -84,12 +90,20 @@ const Login = () => {
           {status === 'loading' ? 'Logging in…' : 'Login'}
         </Button>
 
+        <Button
+          variant="text"
+          fullWidth
+          sx={{ mt: 1 }}
+          onClick={() => navigate('/signup')}
+        >
+          Don’t have an account? Signup
+        </Button>
+
         {localError && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {localError}
           </Alert>
         )}
-
       </form>
     </Box>
   );
