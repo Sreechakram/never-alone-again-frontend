@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
 import {
   loginUser,
   setUser,
   setToken,
-} from '../../features/authentication/authenticationSlice';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Alert } from '@mui/material';
+} from "../../features/authentication/authenticationSlice";
+import { useNavigate } from "react-router-dom";
+import { Box, Button, TextField, Alert } from "@mui/material";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -32,13 +32,13 @@ const Login = () => {
       if (res?.status === true && res?.token) {
         dispatch(setToken(res.token));
         dispatch(setUser({ email }));
-        navigate('/dashboard', { replace: true });
+        navigate("/dashboard", { replace: true });
         return;
       }
     }
 
     if (loginUser.rejected.match(action)) {
-      setLocalError(action.payload?.message || 'Invalid email or password');
+      setLocalError(action.payload?.message || "Invalid email or password");
     }
   };
 
@@ -46,7 +46,7 @@ const Login = () => {
     <Box
       sx={{
         maxWidth: 420,
-        mx: 'auto',
+        mx: "auto",
         px: { xs: 2, sm: 3 },
         mt: { xs: 6, sm: 8 },
       }}
@@ -58,11 +58,11 @@ const Login = () => {
           margin="dense"
           error={!!errors.email}
           helperText={errors.email?.message}
-          {...register('email', {
-            required: 'Email is required',
+          {...register("email", {
+            required: "Email is required",
             pattern: {
               value: /^\S+@\S+$/i,
-              message: 'Enter a valid email',
+              message: "Enter a valid email",
             },
           })}
         />
@@ -72,29 +72,38 @@ const Login = () => {
           type="password"
           fullWidth
           margin="dense"
-          sx={{ mb: 1 }}
+          sx={{ mb: 0.5 }}
           error={!!errors.password}
           helperText={errors.password?.message}
-          {...register('password', {
-            required: 'Password is required',
+          {...register("password", {
+            required: "Password is required",
           })}
         />
+
+        <Button
+          variant="text"
+          size="small"
+          sx={{ alignSelf: "flex-end", mt: 0.5 }}
+          onClick={() => navigate("/forgot-password")}
+        >
+          Forgot password?
+        </Button>
 
         <Button
           fullWidth
           type="submit"
           variant="contained"
-          disabled={status === 'loading'}
+          disabled={status === "loading"}
           sx={{ mt: 2 }}
         >
-          {status === 'loading' ? 'Logging in…' : 'Login'}
+          {status === "loading" ? "Logging in…" : "Login"}
         </Button>
 
         <Button
           variant="text"
           fullWidth
           sx={{ mt: 1 }}
-          onClick={() => navigate('/signup')}
+          onClick={() => navigate("/signup")}
         >
           Don’t have an account? Signup
         </Button>

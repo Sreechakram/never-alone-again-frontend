@@ -1,28 +1,50 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { forgotPassword } from '../../features/authentication/authenticationSlice';
-import { Box, Button, TextField, Alert } from '@mui/material';
+import { forgotPassword, clearError } from '../../features/authentication/authenticationSlice';
+import { Box, Button, TextField, Alert, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const ForgotPassword = () => {
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const { status, error } = useSelector((state) => state.auth);
 
-  const onSubmit = async (data) => {
-    // thunk expects an object like { email }
-    const result = await dispatch(forgotPassword({ email: data.email }));
-    // optionally handle success/failure here
-    // e.g. show a success message or route
+  useEffect(() => {
+    return () => dispatch(clearError());
+  }, [dispatch]);
+
+  const onSubmit = async ({ email }) => {
+    const action = await dispatch(forgotPassword({ email }));
+    if (forgotPassword.fulfilled.match(action)) {
+      navigate('/reset-password', { state: { email } });
+    }
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mt: 8, mx: 'auto' }}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <TextField label="Email" fullWidth margin="normal" {...register('email', { required: true })} />
-        <Button type="submit" variant="contained" fullWidth>
-          {status === 'loading' ? 'Sending...' : 'Send Reset Link'}
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
+      <Typography variant="h6" mb={2}>Forgot Password</Typography>
+
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <TextField
+          label="Email"
+          fullWidth
+          margin="normal"
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          {...register('email', { required: 'Email is required' })}
+        />
+
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={status === 'loading'}
+        >
+          {status === 'loading' ? 'Sending OTP...' : 'Send OTP'}
         </Button>
+
         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
       </form>
     </Box>
