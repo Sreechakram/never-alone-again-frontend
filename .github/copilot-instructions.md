@@ -14,12 +14,14 @@ Keep suggestions focused on this repo's concrete patterns, files, and integratio
 
 ## State and auth flow (critical)
 
-- Single slice for auth: `src/features/authentication/authenticationSlice.js`.
-  - Uses createAsyncThunk for async flows (signupUser, loginUser, verifyUserOTP, fetchUserInfo, etc.).
-  - Stores `user`, `token`, `verified`, `status`, `error`. LocalStorage used for token and user.
-  - Error handling: thunks rejectWithValue with message; slice uses addMatcher to handle pending/fulfilled/rejected.
-- Services call the backend in `src/features/authentication/authenticationService.js`. API base is hard-coded to `http://localhost:8000`.
-- Routing protection happens in `src/routes/AppRoutes.jsx` (routes check `token` and `verified`) and `Authenticator.jsx` expects `token` and `user` to fetch user info.
+- **Single auth slice**: [src/features/authentication/authenticationSlice.js](src/features/authentication/authenticationSlice.js).
+  - **Thunks** (all use `rejectWithValue` on error): `signupUser`, `loginUser`, `verifyUserOTP`, `resendOTP`, `forgotPassword`, `resetPassword`, `fetchUserInfo` (commented out).
+  - **State shape**: `{ user: {email?}, token, verified: bool, status: 'idle'|'loading'|'succeeded'|'failed', error: {message?} }`.
+  - **Persistence**: `token` and `user` stored in `localStorage`; thunks restore from storage on init.
+  - **Error handling**: thunks extract messages via `extractErrorMessage()` helper; addMatcher handles pending/fulfilled/rejected for all thunks.
+- **Auth flow sequence**: Signup → Login → Verify OTP (sets `verified=true`) → Dashboard. Each page dispatches a thunk and checks `fulfilled.match(action)` or `rejected.match(action)`.
+- **Route protection**: [src/routes/AppRoutes.jsx](src/routes/AppRoutes.jsx) guards `/dashboard` (requires `token && verified`), gates `/verify-otp` (requires `user && !verified`), redirects unauth users to `/signup`.
+- **API base URL** hardcoded to `http://localhost:8000` in [authenticationService.js](src/features/authentication/authenticationService.js); protected endpoints use `Authorization: Bearer ${token}` header.
 
 ## Conventions and patterns for edits
 
@@ -33,17 +35,24 @@ Keep suggestions focused on this repo's concrete patterns, files, and integratio
 
 ## Important files to reference (examples)
 
-- Auth slice: `src/features/authentication/authenticationSlice.js` — shows thunk patterns, localStorage usage and error extraction helper.
-- Auth service: `src/features/authentication/authenticationService.js` — shows endpoint routes and header usage.
-- Store: `src/app/store.js` — how reducers are wired (auth under `state.auth`).
-- Routes: `src/routes/AppRoutes.jsx` — route guards and redirects.
-- Component example: `src/pages/authentication/Login.jsx` — dispatching `loginUser` then navigating to `/verify-otp`.
+- Auth slice: [src/features/authentication/authenticationSlice.js](src/features/authentication/authenticationSlice.js) — all thunks (`signupUser`, `loginUser`, `verifyUserOTP`, `resendOTP`, `forgotPassword`, `resetPassword`), localStorage persistence, error extraction helper.
+- Auth service: [src/features/authentication/authenticationService.js](src/features/authentication/authenticationService.js) — all API endpoints and Bearer token usage for protected routes.
+- Store: [src/app/store.js](src/app/store.js) — single auth reducer under `state.auth`.
+- Routes: [src/routes/AppRoutes.jsx](src/routes/AppRoutes.jsx) — conditional routing based on `token` and `verified` flags; guards `/dashboard`, redirects `/verify-otp` and public routes.
+- Auth pages: [src/pages/authentication/Login.jsx](src/pages/authentication/Login.jsx), [Signup.jsx](src/pages/authentication/Signup.jsx), [ForgotPassword.jsx](src/pages/authentication/ForgotPassword.jsx), [ResetPassword.jsx](src/pages/authentication/ResetPassword.jsx), [VerifyOtp.jsx](src/pages/authentication/VerifyOtp.jsx) — each dispatches a thunk and handles fulfilled/rejected branches.
+- Authenticator component: [src/components/authentication/Authenticator.jsx](src/components/authentication/Authenticator.jsx) — conditionally renders pages based on auth state (used as fallback or testing component).
+- Validation schemas: [src/validation/authentication.js](src/validation/authentication.js) — Yup schemas for signup (username, email, password).
 
 ## Developer workflows (how to run & debug)
 
-- Start dev server: `npm start` (Create React App). The app expects a backend at `http://localhost:8000` for auth endpoints.
-- Build: `npm run build`. Tests: `npm test` (CRA test runner).
-- Debugging auth issues: check `localStorage` keys `token` and `user`. `authenticationSlice` logs parsing errors to console; follow that pattern for additional debug logs.
+- **Development**: `npm start` (Create React App). Frontend runs at http://localhost:3000; backend must be available at http://localhost:8000.
+- **Build for production**: `npm run build`.
+- **Testing**: `npm test` (CRA test runner; watches files automatically).
+- **Debugging auth flow**: 
+  - Check `localStorage` for keys `token` (string) and `user` (JSON object with email).
+  - Read `authenticationSlice` for error extraction helper and localStorage fallback logic.
+  - Frontend reloads on file changes; browser DevTools (Redux DevTools extension optional) shows state changes.
+  - Common issue: API_URL hardcoded to `localhost:8000` — won't work against deployed backend without override.
 
 ## External dependencies & integration notes
 

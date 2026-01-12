@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
-import { signupUser, setUser } from '../../features/authentication/authenticationSlice';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Alert } from '@mui/material';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { signupUser, setUser } from "../../features/authentication/authenticationSlice";
+import { useNavigate } from "react-router-dom";
+import { Box, Button, TextField, Alert, Typography } from "@mui/material";
+import nag from "../../assets/authentication/nag.svg";
 
 const Signup = () => {
   const dispatch = useDispatch();
@@ -19,69 +20,98 @@ const Signup = () => {
 
     if (signupUser.fulfilled.match(result) && response?.status === true) {
       dispatch(setUser({ email: data.email }));
-      navigate('/verify-otp');
+      navigate("/verify-otp");
       return;
     }
 
-    if (response?.message?.includes('already verified')) {
-      setLocalError('User already exists. Please log in.');
+    if (response?.message?.includes("already verified")) {
+      setLocalError("User already exists. Please log in.");
       return;
     }
 
-    setLocalError(response?.message || result.error?.message || 'Signup failed');
+    setLocalError(response?.message || result.error?.message || "Signup failed");
   };
 
   return (
-    <Box
-      sx={{
-        maxWidth: 420,
-        mx: 'auto',
-        px: { xs: 2, sm: 3 },
-        mt: { xs: 6, sm: 8 },
-      }}
-    >
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <TextField
-          label="Email"
-          fullWidth
-          margin="dense"
-          {...register('email', { required: true })}
+    <Box sx={{ minHeight: "100vh" }}>
+      <Box
+        sx={{
+          display: "flex",
+          minHeight: "100vh",
+        }}
+      >
+        {/* LEFT — Wallpaper (60%) */}
+        <Box
+          sx={{
+            flex: 3,
+            display: { xs: "none", md: "block" },
+            backgroundImage: `url(${nag})`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         />
 
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth
-          margin="dense"
-          sx={{ mb: 1 }}
-          {...register('password', { required: true })}
-        />
-
-        <Button
-          variant="contained"
-          type="submit"
-          fullWidth
-          disabled={status === 'loading'}
-          sx={{ mt: 2 }}
+        {/* RIGHT — Signup (40%) */}
+        <Box
+          sx={{
+            flex: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            px: { xs: 2, sm: 4 },
+          }}
         >
-          {status === 'loading' ? 'Signing up…' : 'Signup'}
-        </Button>
+          <Box sx={{ width: "100%", maxWidth: 420 }}>
+            <Typography variant="h5" mb={2} fontWeight={600}>
+              Create Account
+            </Typography>
 
-        <Button
-          variant="text"
-          fullWidth
-          sx={{ mt: 1 }}
-          onClick={() => navigate('/login')}
-        >
-          Already have an account? Login
-        </Button>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <TextField
+                label="Email"
+                fullWidth
+                margin="dense"
+                {...register("email", { required: true })}
+              />
 
-        {localError && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {localError}
-          </Alert>
-        )}
-      </form>
+              <TextField
+                label="Password"
+                type="password"
+                fullWidth
+                margin="dense"
+                sx={{ mb: 1 }}
+                {...register("password", { required: true })}
+              />
+
+              <Button
+                variant="contained"
+                type="submit"
+                fullWidth
+                disabled={status === "loading"}
+                sx={{ mt: 2 }}
+              >
+                {status === "loading" ? "Signing up…" : "Signup"}
+              </Button>
+
+              <Button
+                variant="text"
+                fullWidth
+                sx={{ mt: 1 }}
+                onClick={() => navigate("/login")}
+              >
+                Already have an account? Login
+              </Button>
+
+              {localError && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {localError}
+                </Alert>
+              )}
+            </form>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };

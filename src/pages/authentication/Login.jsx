@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  loginUser,
-  setUser,
-  setToken,
-} from "../../features/authentication/authenticationSlice";
+import { loginUser, setUser, setToken } from "../../features/authentication/authenticationSlice";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, TextField, Alert } from "@mui/material";
+import { Box, Button, TextField, Alert, Typography } from "@mui/material";
+import nag from "../../assets/authentication/nag.svg";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -43,77 +40,102 @@ const Login = () => {
   };
 
   return (
-    <Box
-      sx={{
-        maxWidth: 420,
-        mx: "auto",
-        px: { xs: 2, sm: 3 },
-        mt: { xs: 6, sm: 8 },
-      }}
-    >
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <TextField
-          label="Email"
-          fullWidth
-          margin="dense"
-          error={!!errors.email}
-          helperText={errors.email?.message}
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^\S+@\S+$/i,
-              message: "Enter a valid email",
-            },
-          })}
+    <Box sx={{ minHeight: "100vh" }}>
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        
+        {/* LEFT — Wallpaper (60%) */}
+        <Box
+          sx={{
+            flex: 3,
+            display: { xs: "none", md: "block" },
+            backgroundImage: `url(${nag})`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         />
 
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth
-          margin="dense"
-          sx={{ mb: 0.5 }}
-          error={!!errors.password}
-          helperText={errors.password?.message}
-          {...register("password", {
-            required: "Password is required",
-          })}
-        />
-
-        <Button
-          variant="text"
-          size="small"
-          sx={{ alignSelf: "flex-end", mt: 0.5 }}
-          onClick={() => navigate("/forgot-password")}
+        {/* RIGHT — Login (40%) */}
+        <Box
+          sx={{
+            flex: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            px: { xs: 2, sm: 4 },
+          }}
         >
-          Forgot password?
-        </Button>
+          <Box sx={{ width: "100%", maxWidth: 420 }}>
+            <Typography variant="h5" mb={2} fontWeight={600}>
+              Welcome Back
+            </Typography>
 
-        <Button
-          fullWidth
-          type="submit"
-          variant="contained"
-          disabled={status === "loading"}
-          sx={{ mt: 2 }}
-        >
-          {status === "loading" ? "Logging in…" : "Login"}
-        </Button>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <TextField
+                label="Email"
+                fullWidth
+                margin="dense"
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: "Enter a valid email",
+                  },
+                })}
+              />
 
-        <Button
-          variant="text"
-          fullWidth
-          sx={{ mt: 1 }}
-          onClick={() => navigate("/signup")}
-        >
-          Don’t have an account? Signup
-        </Button>
+              <TextField
+                label="Password"
+                type="password"
+                fullWidth
+                margin="dense"
+                sx={{ mb: 0.5 }}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                {...register("password", {
+                  required: "Password is required",
+                })}
+              />
 
-        {localError && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {localError}
-          </Alert>
-        )}
-      </form>
+              <Button
+                variant="text"
+                size="small"
+                sx={{ alignSelf: "flex-end", mt: 0.5 }}
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot password?
+              </Button>
+
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                disabled={status === "loading"}
+                sx={{ mt: 2 }}
+              >
+                {status === "loading" ? "Logging in…" : "Login"}
+              </Button>
+
+              <Button
+                variant="text"
+                fullWidth
+                sx={{ mt: 1 }}
+                onClick={() => navigate("/signup")}
+              >
+                Don’t have an account? Signup
+              </Button>
+
+              {localError && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {localError}
+                </Alert>
+              )}
+            </form>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 };
